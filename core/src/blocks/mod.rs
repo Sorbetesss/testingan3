@@ -38,7 +38,7 @@
 //! ];
 //!
 //! // Given some chain config and metadata, we know how to decode the bytes.
-//! let exts = blocks::decode_from::<PolkadotConfig>(ext_bytes, metadata).unwrap();
+//! let exts = blocks::decode_from::<PolkadotConfig>(ext_bytes, metadata);
 //!
 //! // We'll see 3 extrinsics:
 //! assert_eq!(exts.len(), 3);
@@ -70,24 +70,20 @@ mod extrinsic_signed_extensions;
 mod extrinsics;
 mod static_extrinsic;
 
+use crate::error::Error;
 use crate::config::Config;
-use crate::error::BlockError;
 use crate::Metadata;
 use alloc::vec::Vec;
 
+pub use crate::error::BlockError;
 pub use extrinsic_signed_extensions::{ExtrinsicSignedExtension, ExtrinsicSignedExtensions};
-pub use extrinsics::{
-    ExtrinsicDetails, ExtrinsicMetadataDetails, Extrinsics, FoundExtrinsic, SignedExtrinsicDetails,
-};
+pub use extrinsics::{ExtrinsicDetails, ExtrinsicMetadataDetails, Extrinsics, FoundExtrinsic};
 pub use static_extrinsic::StaticExtrinsic;
 
 /// Instantiate a new [`Extrinsics`] object, given a vector containing each extrinsic hash (in the
 /// form of bytes) and some metadata that we'll use to decode them.
 ///
 /// This is a shortcut for [`Extrinsics::decode_from`].
-pub fn decode_from<T: Config>(
-    extrinsics: Vec<Vec<u8>>,
-    metadata: Metadata,
-) -> Result<Extrinsics<T>, BlockError> {
+pub fn decode_from<T: Config>(extrinsics: Vec<Vec<u8>>, metadata: Metadata) -> Result<Extrinsics<T>, Error> {
     Extrinsics::decode_from(extrinsics, metadata)
 }

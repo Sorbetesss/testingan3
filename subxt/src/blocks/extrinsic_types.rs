@@ -6,7 +6,7 @@ use crate::{
     blocks::block_types::{get_events, CachedEvents},
     client::{OfflineClientT, OnlineClientT},
     config::{Config, Hasher},
-    error::{BlockError, Error},
+    error::Error,
     events,
 };
 
@@ -37,7 +37,7 @@ where
         extrinsics: Vec<Vec<u8>>,
         cached_events: CachedEvents<T>,
         hash: T::Hash,
-    ) -> Result<Self, BlockError> {
+    ) -> Result<Self, Error> {
         let inner = CoreExtrinsics::decode_from(extrinsics, client.metadata())?;
         Ok(Self {
             inner,
@@ -67,19 +67,18 @@ where
     // use of it with our `FilterExtrinsic` stuff.
     pub fn iter(
         &self,
-    ) -> impl Iterator<Item = Result<ExtrinsicDetails<T, C>, Error>> + Send + Sync + 'static {
+    ) -> impl Iterator<Item = ExtrinsicDetails<T, C>> + Send + Sync + 'static {
         let client = self.client.clone();
         let cached_events = self.cached_events.clone();
         let block_hash = self.hash;
 
-        self.inner.iter().map(move |res| {
-            let inner = res?;
-            Ok(ExtrinsicDetails::new(
+        self.inner.iter().map(move |inner| {
+            ExtrinsicDetails::new(
                 inner,
                 client.clone(),
                 block_hash,
                 cached_events.clone(),
-            ))
+            )
         })
     }
 
